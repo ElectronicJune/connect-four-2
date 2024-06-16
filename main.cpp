@@ -1,11 +1,9 @@
 #include<iostream>
 #include<vector>
 #include<climits>
-#include<map>
 #include<cmath>
 #include<algorithm>
 using namespace std;
-map<vector<vector<bool>>, int> history;
 struct Board {
     vector<vector<bool>> state = vector<vector<bool>>(7, vector<bool>());
     int moves_left = 42;
@@ -185,7 +183,6 @@ int minimax(Board &game, int limit, int depth = 0, int alpha = INT_MIN, int beta
         return heuristicScore(game);
     }
     if (game.moves_left == 0 && game.result == 0) return 0;
-    if (history.count(game.state)) return history[game.state];
     if (game.next_player){
         int best_score = INT_MIN;
         for (int i = 0; i < 7; ++i){
@@ -203,7 +200,6 @@ int minimax(Board &game, int limit, int depth = 0, int alpha = INT_MIN, int beta
             alpha = max(alpha, winrate);
             if (beta <= alpha) break;
         }
-        history[game.state] = best_score;
         return best_score;
     }else{
         int best_score = INT_MAX;
@@ -222,7 +218,6 @@ int minimax(Board &game, int limit, int depth = 0, int alpha = INT_MIN, int beta
             beta = min(beta, winrate);
             if (beta <= alpha) break;
         }
-        history[game.state] = best_score;
         return best_score;
     }
 }
@@ -248,7 +243,6 @@ int playBest(Board &game, int level = 5){
                 best_score = winrate;
             }
         }
-        history.clear();
         return best_move;
     }else{
         int best_score = INT_MAX;
@@ -263,7 +257,6 @@ int playBest(Board &game, int level = 5){
                 best_score = winrate;
             }
         }
-        history.clear();
         return best_move;
     }
 }
