@@ -235,7 +235,6 @@ int playBest(Board &game, int level = 5){
         level = log(pow(7, level)) / log(7 - almost_full);
     }
     if (game.moves_left <= 20 && almost_full >= 2) level = 20;
-    cerr << "level:" << level << endl;
     if (game.next_player){
         int best_score = INT_MIN;
         int best_move = 0;
@@ -249,7 +248,6 @@ int playBest(Board &game, int level = 5){
                 best_score = winrate;
             }
         }
-        cerr << best_score << endl;
         history.clear();
         return best_move;
     }else{
@@ -265,7 +263,6 @@ int playBest(Board &game, int level = 5){
                 best_score = winrate;
             }
         }
-        cerr << best_score << endl;
         history.clear();
         return best_move;
     }
