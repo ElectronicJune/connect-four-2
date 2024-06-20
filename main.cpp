@@ -206,7 +206,7 @@ int minimax(Board &game, int limit, int depth = 0, int alpha = INT_MIN, int beta
             if (game2.result == 1){
                 winrate = INT_MAX - depth;
             }else{
-                if (limit - depth == 1 && abs(heuristicScore(game) - heuristicScore(game2)) >= 14)
+                if (limit - depth == 1 && abs(heuristicScore(game) - heuristicScore(game2)) >= 15)
                     winrate = minimax(game2, limit, depth, alpha, beta);
                 else
                     winrate = minimax(game2, limit, depth+1, alpha, beta);
