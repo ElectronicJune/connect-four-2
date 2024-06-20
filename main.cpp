@@ -101,11 +101,25 @@ void display(Board &game, char first_player, char second_player){
         }
         cout << '\n';
     }
-    cout << " 0  1  2  3  4  5  6\n";
+    cout << " 1  2  3  4  5  6  7\n";
 }
 int heuristicScore(Board &board){
     if (board.result != 0) return board.result * INT_MAX;
     vector<vector<bool>> state = board.state;
+    int notfull = 0;
+    int index = 0;
+    for (int i = 0; i < 7; ++i){
+        if (state[i].size() == 6) continue;
+        ++notfull;
+        index = i;
+    }
+    if (notfull == 1){
+        Board game2 = board;
+        while (game2.state[index].size() < 6){
+            game2.add(index);
+            if (game2.result != 0) return game2.result * INT_MAX;
+        }
+    }
     int first_score = 0;
     int second_score = 0;
     // vertical
@@ -116,9 +130,9 @@ int heuristicScore(Board &board){
             for (int k = 0; k < 4; ++k){
                 if (state[i].size() <= j+k) continue;
                 if (state[i][j+k]){
-                    first_points*=2;
+                    ++first_points;
                 }else{
-                    second_points*=2;
+                    ++second_points;
                 }
             }
             if (first_points == 1) second_score += second_points;
@@ -133,9 +147,9 @@ int heuristicScore(Board &board){
             for (int k = 0; k < 4; ++k){
                 if (state[i+k].size() <= j) continue;
                 if (state[i+k][j]){
-                    first_points*=2;
+                    first_points <<= 1;
                 }else{
-                    second_points*=2;
+                    second_points <<= 1;
                 }
             }
             if (first_points == 1) second_score += second_points;
@@ -150,9 +164,9 @@ int heuristicScore(Board &board){
             for (int k = 0; k < 4; ++k){
                 if (state[i-k].size() <= j+k) continue;
                 if (state[i-k][j+k]){
-                    first_points*=2;
+                    first_points <<= 1;
                 }else{
-                    second_points*=2;
+                    second_points <<= 1;
                 }
             }
             if (first_points == 1) second_score += second_points;
@@ -167,9 +181,9 @@ int heuristicScore(Board &board){
             for (int k = 0; k < 4; ++k){
                 if (state[i+k].size() <= j+k) continue;
                 if (state[i+k][j+k]){
-                    first_points*=2;
+                    first_points <<= 1;
                 }else{
-                    second_points*=2;
+                    second_points <<= 1;
                 }
             }
             if (first_points == 1) second_score += second_points;
@@ -179,7 +193,7 @@ int heuristicScore(Board &board){
     return first_score - second_score;
 }
 int minimax(Board &game, int limit, int depth = 0, int alpha = INT_MIN, int beta = INT_MAX){
-    if (depth == limit){
+    if (depth >= limit){
         return heuristicScore(game);
     }
     if (game.moves_left == 0 && game.result == 0) return 0;
@@ -192,7 +206,10 @@ int minimax(Board &game, int limit, int depth = 0, int alpha = INT_MIN, int beta
             if (game2.result == 1){
                 winrate = INT_MAX - depth;
             }else{
-                winrate = minimax(game2, limit, depth+1, alpha, beta);
+                if (limit - depth == 1 && abs(heuristicScore(game) - heuristicScore(game2)) >= 14)
+                    winrate = minimax(game2, limit, depth, alpha, beta);
+                else
+                    winrate = minimax(game2, limit, depth+1, alpha, beta);
             }
             if (winrate > best_score){
                 best_score = winrate;
@@ -210,7 +227,10 @@ int minimax(Board &game, int limit, int depth = 0, int alpha = INT_MIN, int beta
             if (game2.result == -1){
                 winrate = INT_MIN + depth;
             }else{
-                winrate = minimax(game2, limit, depth+1, alpha, beta);
+                if (limit - depth == 1 && abs(heuristicScore(game) - heuristicScore(game2)) >= 15)
+                    winrate = minimax(game2, limit, depth, alpha, beta);
+                else
+                    winrate = minimax(game2, limit, depth+1, alpha, beta);
             }
             if (winrate < best_score){
                 best_score = winrate;
@@ -221,15 +241,15 @@ int minimax(Board &game, int limit, int depth = 0, int alpha = INT_MIN, int beta
         return best_score;
     }
 }
-int playBest(Board &game, int level = 5){
+int playBest(Board &game, int level = 6){
     int almost_full = 0;
     for (auto &i : game.state){
-        if (i.size() >= 4) ++almost_full;
+        if (i.size() >= 5) ++almost_full;
     }
     if (7 - almost_full != 0) {
-        level = log(pow(7, level)) / log(7 - almost_full);
+        level = level * log(7) / log(7 - almost_full);
     }
-    if (game.moves_left <= 20 && almost_full >= 2) level = 20;
+    if (game.moves_left <= 17 && almost_full >= 2) level = 17;
     if (game.next_player){
         int best_score = INT_MIN;
         int best_move = 0;
@@ -263,5 +283,5 @@ int playBest(Board &game, int level = 5){
 
 int main(){
     Board game;
-    //customize
+    // customize
 }

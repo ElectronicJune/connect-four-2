@@ -1,7 +1,6 @@
 #include<iostream>
 #include<vector>
 #include<climits>
-#include<map>
 #include<cmath>
 #include<algorithm>
 using namespace std;
@@ -148,9 +147,9 @@ int heuristicScore(Board &board){
             for (int k = 0; k < 4; ++k){
                 if (state[i+k].size() <= j) continue;
                 if (state[i+k][j]){
-                    first_points*=2;
+                    first_points <<= 1;
                 }else{
-                    second_points*=2;
+                    second_points <<= 1;
                 }
             }
             if (first_points == 1) second_score += second_points;
@@ -165,9 +164,9 @@ int heuristicScore(Board &board){
             for (int k = 0; k < 4; ++k){
                 if (state[i-k].size() <= j+k) continue;
                 if (state[i-k][j+k]){
-                    first_points*=2;
+                    first_points <<= 1;
                 }else{
-                    second_points*=2;
+                    second_points <<= 1;
                 }
             }
             if (first_points == 1) second_score += second_points;
@@ -182,9 +181,9 @@ int heuristicScore(Board &board){
             for (int k = 0; k < 4; ++k){
                 if (state[i+k].size() <= j+k) continue;
                 if (state[i+k][j+k]){
-                    first_points*=2;
+                    first_points <<= 1;
                 }else{
-                    second_points*=2;
+                    second_points <<= 1;
                 }
             }
             if (first_points == 1) second_score += second_points;
@@ -207,7 +206,7 @@ int minimax(Board &game, int limit, int depth = 0, int alpha = INT_MIN, int beta
             if (game2.result == 1){
                 winrate = INT_MAX - depth;
             }else{
-                if (limit - depth == 1 && abs(heuristicScore(game) - heuristicScore(game2)) >= 15)
+                if (limit - depth == 1 && abs(heuristicScore(game) - heuristicScore(game2)) >= 14)
                     winrate = minimax(game2, limit, depth, alpha, beta);
                 else
                     winrate = minimax(game2, limit, depth+1, alpha, beta);
@@ -242,15 +241,15 @@ int minimax(Board &game, int limit, int depth = 0, int alpha = INT_MIN, int beta
         return best_score;
     }
 }
-int playBest(Board &game, int level = 5){
+int playBest(Board &game, int level = 6){
     int almost_full = 0;
     for (auto &i : game.state){
         if (i.size() >= 5) ++almost_full;
     }
     if (7 - almost_full != 0) {
-        level = log(pow(7, level)) / log(7 - almost_full);
+        level = level * log(7) / log(7 - almost_full);
     }
-    if (game.moves_left <= 16 && almost_full >= 2) level = 16;
+    if (game.moves_left <= 17 && almost_full >= 2) level = 17;
     if (game.next_player){
         int best_score = INT_MIN;
         int best_move = 0;
@@ -291,7 +290,7 @@ int main(){
     char secondplayer = 'X';
     if (option != 'y' && option != 'Y') swap(firstplayer, secondplayer);
     if (firstplayer == 'X'){
-      game.add(playBest(game, 6));
+      game.add(playBest(game));
     }
     while (game.result == 0 && game.moves_left != 0){
       cout << endl;
@@ -301,7 +300,7 @@ int main(){
         cin >> n;
       }while (n < 1 || n > 7 || game.add(n-1) == -1);
       if (game.result != 0) break;
-      game.add(playBest(game, 6));
+      game.add(playBest(game));
     }
     display(game, firstplayer, secondplayer);
     if (game.result == 0){
@@ -313,4 +312,5 @@ int main(){
     }else{
       cout << "YOU LOSE\n";
     }
+    system("pause");
 }
